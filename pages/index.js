@@ -30,7 +30,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      // props to be passed to the page component
+      // 페이지 컴포넌트에 전달될 props
       session,
     },
   }
