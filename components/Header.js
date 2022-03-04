@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 function Header() {
   return (
-    <>
+    <div>
       <div>Header</div>
 
       {/* Left */}
@@ -13,12 +13,15 @@ function Header() {
           height={40}
           layout="fixed"
         />
+        <div>
+          <input type="text" placeholder="Search Facebook" />
+        </div>
       </div>
 
       {/* Center */}
 
       {/* Right */}
-    </>
+    </div>
   )
 }
 
