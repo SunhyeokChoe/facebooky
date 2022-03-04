@@ -61,14 +61,14 @@ function Header() {
         {/* Profile picture */}
         <Image
           onClick={signOut}
-          className="curser-pointer rounded-full"
+          className="cursor-pointer rounded-full"
           src={session.user.image}
           width="40"
           height="40"
           layout="fixed"
         />
 
-        <p className="font-semibold">Sunhyeok Choe</p>
+        <p className="font-semibold">{session.user.name}</p>
         <ViewGridIcon className="icon" />
         <ChatIcon className="icon" />
         <BellIcon className="icon" />
