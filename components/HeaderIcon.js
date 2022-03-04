@@ -1,4 +1,4 @@
-function HeaderIcon({ Icon }) {
+function HeaderIcon({ Icon, active }) {
   return (
     <div
       className="
@@ -12,7 +12,12 @@ function HeaderIcon({ Icon }) {
         active:border-blue-500
         group"
     >
-      <Icon className="h-5 group-hover:text-blue-500 text-center sm:h-7 mx-auto" />
+      <Icon
+        className={`
+          h-5 text-gray-500 group-hover:text-blue-500 text-center sm:h-7 mx-auto 
+          ${active && 'text-blue-500'}
+        `}
+      />
     </div>
   )
 }
