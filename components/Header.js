@@ -19,8 +19,6 @@ import HeaderIcon from './HeaderIcon'
 function Header() {
   const { data: session, status } = useSession()
 
-  console.log('session!?', session)
-
   return (
     <div
       className="sticky top-0 z-50 bg-white flex items-center p-2 
