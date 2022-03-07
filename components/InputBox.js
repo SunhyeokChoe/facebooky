@@ -51,7 +51,11 @@ function InputBox() {
 
           // upload file and metadata to the object 'images/mountains.jpg'
           const storageRef = ref(storage, 'posts/' + doc.id)
-          const uploadTask = uploadBytesResumable(storageRef, fileToPost)
+          const uploadTask = uploadBytesResumable(
+            storageRef,
+            fileToPost,
+            metadata,
+          )
 
           uploadTask.on(
             'state_changed',
@@ -106,7 +110,10 @@ function InputBox() {
         }
       })
       .then(() => {
+        // clear input(type="file")
         removeImage()
+
+        // clear input(type="text")
         inputRef.current.value = ''
       })
   }
@@ -135,6 +142,9 @@ function InputBox() {
     reader.readAsDataURL(file)
   }
 
+  /**
+   * file picker, input(type="file") 그리고 관련 state 초기화
+   */
   const removeImage = () => {
     setFile(null)
     setFileDataURL(null)
