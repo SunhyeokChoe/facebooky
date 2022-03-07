@@ -40,15 +40,13 @@ function InputBox() {
       image: session.user.image,
       timestamp: Timestamp.now(),
     })
-      // 메시지 포스팅 완료 직후 파일 업로드
-      .then((doc /* 포스트된 메시지 Document reference */) => {
-        console.log('doc.id?', doc.id)
-
+      // 메시지 포스팅 완료 직후 파일을 firestore에 동일한 doc.id로 업로드
+      .then((doc /* 포스팅 완료된 메시지 Document reference */) => {
         if (fileToPost) {
           // create file metadata including the content type
           /** @type {any} */
           const metadata = {
-            contentType: fileToPost.name,
+            contentType: fileToPost.type,
           }
 
           // upload file and metadata to the object 'images/mountains.jpg'
@@ -109,9 +107,8 @@ function InputBox() {
       })
       .then(() => {
         removeImage()
+        inputRef.current.value = ''
       })
-
-    inputRef.current.value = ''
   }
 
   /**
