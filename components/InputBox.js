@@ -120,6 +120,8 @@ function InputBox() {
   const addFileDataURL = (e) => {
     if (!e.target.files) return
 
+    console.log('e.target.files', e.target.files)
+
     const file = e.target.files[0]
     const reader = new FileReader()
 
@@ -136,7 +138,18 @@ function InputBox() {
     reader.readAsDataURL(file)
   }
 
-  const removeImage = () => setFileDataURL(null)
+  const removeImage = () => {
+    setFile(null)
+    setFileDataURL(null)
+
+    /**
+     * onChange 이벤트는 새로운 이미지 선택시에만 발생하므로
+     * 이미지 선택을 취소 후 다시 동일한 이미지 선택 했을 경우 이벤트가 발생하지 않는다.
+     * 따라서 input(type="file") ref의 current.value 값을 초기화 해주어 동일 파일을
+     * 선택해도 이벤트를 발생시킬 수 있도록 한다.
+     */
+    filePickerRef.current.value = ''
+  }
 
   return (
     <div className="bg-white mt-6 p-2 rounded-2xl shadow-md text-gray-500 font-medium">
