@@ -4,27 +4,28 @@ import Image from 'next/image'
 import { EmojiHappyIcon } from '@heroicons/react/outline'
 import { CameraIcon, VideoCameraIcon } from '@heroicons/react/solid'
 import { db } from '../firebase'
-// import { FieldValue } from 'firebase/firestore'
-
-// import firebase from 'firebase/app'
+import {
+  collection,
+  addDoc,
+  Timestamp,
+  FieldValue,
+} from 'firebase/firestore/lite'
 
 function InputBox() {
   const { data: session } = useSession()
   const inputRef = useRef(null)
 
-  const sendPost = (e) => {
+  const sendPost = async (e) => {
     e.preventDefault()
 
     if (!inputRef.current.value) return
 
-    console.log('db!?', db)
-
-    db.collection('posts').add({
+    addDoc(collection(db, 'posts'), {
       message: inputRef.current.value,
       name: session.user.name,
       email: session.user.email,
       image: session.user.image,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      timestamp: Timestamp.now(),
     })
 
     inputRef.current.value = ''
