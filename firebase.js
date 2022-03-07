@@ -13,6 +13,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
+
+/**
+ * Debugging mode rule
+ * => allow read, write: if request.auth == null;
+ */
 const storage = getStorage(app)
 
 export { db, storage }
