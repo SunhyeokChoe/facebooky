@@ -1,6 +1,7 @@
-import React from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import { signOut, useSession } from 'next-auth/react'
+import { useInput } from '@hooks/react'
 import {
   BellIcon,
   ChatIcon,
@@ -19,8 +20,7 @@ import HeaderIcon from './HeaderIcon'
 
 function Header() {
   const { data: session, status } = useSession()
-
-  const [input, setInput] = useState('')
+  const searchInput = useInput('')
 
   return (
     <div
@@ -42,6 +42,7 @@ function Header() {
         <div className="flex ml-2 items-center rounded-full bg-gray-100 p-2">
           <SearchIcon className="h-6 text-gray-600" />
           <input
+            {...searchInput}
             className="hidden md:inline-flex ml-2 items-center bg-transparent outline-none placeholder-gray-500 flex-shrink"
             type="text"
             placeholder="Search Facebook"
