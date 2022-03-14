@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import Image from 'next/image'
 import { signOut, useSession } from 'next-auth/react'
+import { useInput } from '@hooks/react'
 import {
   BellIcon,
   ChatIcon,
@@ -18,6 +20,7 @@ import HeaderIcon from './HeaderIcon'
 
 function Header() {
   const { data: session, status } = useSession()
+  const searchInput = useInput('')
 
   return (
     <div
@@ -27,15 +30,19 @@ function Header() {
     >
       {/* Left */}
       <div className="flex items-center">
+        {/* Logo */}
         <Image
           src="https://links.papareact.com/5me"
           width={40}
           height={40}
           layout="fixed"
+          alt="Logo"
         />
+        {/* Search bar */}
         <div className="flex ml-2 items-center rounded-full bg-gray-100 p-2">
           <SearchIcon className="h-6 text-gray-600" />
           <input
+            {...searchInput}
             className="hidden md:inline-flex ml-2 items-center bg-transparent outline-none placeholder-gray-500 flex-shrink"
             type="text"
             placeholder="Search Facebook"
@@ -64,6 +71,7 @@ function Header() {
           width="40"
           height="40"
           layout="fixed"
+          alt="Profile picture"
         />
 
         <p className="font-semibold">{session.user.name}</p>
