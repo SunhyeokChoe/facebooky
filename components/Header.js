@@ -23,7 +23,7 @@ function Header() {
   const searchInput = useInput('')
 
   return (
-    <div
+    <header
       className="sticky top-0 z-50 bg-white flex items-center p-2 
       lg:px-5
       shadow-md"
@@ -80,7 +80,7 @@ function Header() {
         <BellIcon className="icon" />
         <ChevronDownIcon className="icon" />
       </div>
-    </div>
+    </header>
   )
 }
 

@@ -16,17 +16,39 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from 'firebase/storage'
+import { useUploadFile } from '@hooks/firebase/storage'
 
 function InputBox() {
   const { data: session } = useSession()
   const inputRef = useRef(null)
   const filePickerRef = useRef(null)
 
-  // for showing the image on the page
+  // useUploadFile hook 호출
+  const [uploadFile, uploading, snapshot, error] = useUploadFile()
+
+  // 컴포넌트에 보여줄 이미지의 base64 string
   const [fileDataURL, setFileDataURL] = useState(null)
 
   // for uploading the image to firebase
-  const [fileToPost, setFile] = useState(null)
+  // firebase storage에 업로드 할 이미지의 bytes
+  const [fileToPost, setFileToPost] = useState(null)
+
+  const uploadToFirebaseStorage = async (storageRef) => {
+    if (fileToPost) {
+      // const filename = fileToPost.name
+      //   .replace(/[~`!#$%^&*+=\-[\]\\';,/{}()|\\":<>?]/g, '')
+      //   .split(' ')
+      //   .join('')
+
+      const result = await uploadFile(storageRef, fileToPost, {
+        // create file metadata including the content type
+        /** @type {any} */
+        contentType: fileToPost.type,
+      })
+
+      console.log(`Result: ${JSON.stringify(result)}`)
+    }
+  }
 
   const sendPost = async (e) => {
     e.preventDefault()
@@ -41,72 +63,69 @@ function InputBox() {
       timestamp: Timestamp.now(),
     })
       // 메시지 포스팅 완료 직후 파일을 firestore에 동일한 doc.id로 업로드
-      .then((doc /* 포스팅 완료된 메시지 Document reference */) => {
+      .then(async (doc /* 포스팅 완료된 메시지 Document reference */) => {
         if (fileToPost) {
-          // create file metadata including the content type
-          /** @type {any} */
-          const metadata = {
-            contentType: fileToPost.type,
-          }
-
           // upload file and metadata to the object 'images/mountains.jpg'
           const storageRef = ref(storage, 'posts/' + doc.id)
-          const uploadTask = uploadBytesResumable(
-            storageRef,
-            fileToPost,
-            metadata,
-          )
 
-          uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-              console.log('## snapshot', snapshot)
+          await uploadToFirebaseStorage(storageRef)
 
-              // get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-              const progress =
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          // const uploadTask = uploadBytesResumable(
+          //   storageRef,
+          //   fileToPost,
+          //   metadata,
+          // )
 
-              console.log(`Upload is ${progress}% done`)
-              switch (snapshot.state) {
-                case 'paused':
-                  console.log('Upload is paused')
-                  break
-                case 'running':
-                  console.log('Upload is running')
-                  break
-              }
-            },
-            (storageError) => {
-              // a full list of error codes is available at
-              // https://firebase.google.com/docs/storage/web/handle-errors
-              // switch (error.code) {
-              //   case 'storage/unauthorized':
-              //     // User doesn't have permission to access the object
-              //     break
-              //   case 'storage/canceled':
-              //     // User canceled the upload
-              //     break
+          // uploadTask.on(
+          //   'state_changed',
+          //   (snapshot) => {
+          //     console.log('## snapshot', snapshot)
 
-              //   // ...
+          //     // get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+          //     const progress =
+          //       (snapshot.bytesTransferred / snapshot.totalBytes) * 100
 
-              //   case 'storage/unknown':
-              //     // Unknown error occurred, inspect error.serverResponse
-              //     break
-              // }
+          //     console.log(`Upload is ${progress}% done`)
+          //     switch (snapshot.state) {
+          //       case 'paused':
+          //         console.log('Upload is paused')
+          //         break
+          //       case 'running':
+          //         console.log('Upload is running')
+          //         break
+          //     }
+          //   },
+          //   (storageError) => {
+          //     // a full list of error codes is available at
+          //     // https://firebase.google.com/docs/storage/web/handle-errors
+          //     // switch (error.code) {
+          //     //   case 'storage/unauthorized':
+          //     //     // User doesn't have permission to access the object
+          //     //     break
+          //     //   case 'storage/canceled':
+          //     //     // User canceled the upload
+          //     //     break
 
-              alert(
-                `storageError: image upload error has been occured. see below. ${JSON.stringify(
-                  storageError,
-                )}`,
-              )
-            },
-            (complete) => {
-              // upload completed successfully, now we can get the download URL
-              getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-                console.log(`File available at: ${downloadUrl}`)
-              })
-            },
-          )
+          //     //   // ...
+
+          //     //   case 'storage/unknown':
+          //     //     // Unknown error occurred, inspect error.serverResponse
+          //     //     break
+          //     // }
+
+          //     alert(
+          //       `storageError: image upload error has been occured. see below. ${JSON.stringify(
+          //         storageError,
+          //       )}`,
+          //     )
+          //   },
+          //   (complete) => {
+          //     // upload completed successfully, now we can get the download URL
+          //     getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+          //       console.log(`File available at: ${downloadUrl}`)
+          //     })
+          //   },
+          // )
         }
       })
       .then(() => {
@@ -131,7 +150,7 @@ function InputBox() {
 
     /* 상태 업로드 리스너 등록 */
     reader.onloadend = (e) => {
-      setFile(file)
+      setFileToPost(file)
       setFileDataURL(e.target.result)
     }
     reader.onerror = (error) => {
@@ -146,7 +165,7 @@ function InputBox() {
    * file picker, input(type="file") 그리고 관련 state 초기화
    */
   const removeImage = () => {
-    setFile(null)
+    setFileToPost(null)
     setFileDataURL(null)
 
     /**

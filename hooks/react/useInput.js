@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 
-export default (defaultValue) => {
-  const [value, setValue] = useState(defaultValue)
+export default (initialValues) => {
+  const [value, setValue] = useState(initialValues)
 
-  const onChange = (e) => {
+  const onChange = useCallback((e) => {
     const {
       target: { value },
     } = e
     setValue(value)
-  }
+  }, [])
 
   return { value, onChange }
 }
