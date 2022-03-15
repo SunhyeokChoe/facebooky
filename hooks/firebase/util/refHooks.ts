@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 export type RefHook<T> = {
-  current: T
+  current: T // SyntheticEvent 로 추정
 }
 
 export const useComparatorRef = <T>(

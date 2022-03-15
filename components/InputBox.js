@@ -6,27 +6,42 @@ import { CameraIcon, VideoCameraIcon } from '@heroicons/react/solid'
 import { db, storage } from '../firebase'
 import {
   collection,
+  doc,
   addDoc,
+  setDoc,
   Timestamp,
   FieldValue,
 } from 'firebase/firestore/lite'
-import {
-  ref,
-  uploadString,
-  uploadBytesResumable,
-  getDownloadURL,
-} from 'firebase/storage'
+import { ref, getDownloadURL } from 'firebase/storage'
+import { useUploadFile } from '@hooks/firebase/storage'
 
 function InputBox() {
   const { data: session } = useSession()
   const inputRef = useRef(null)
   const filePickerRef = useRef(null)
 
-  // for showing the image on the page
+  // useUploadFile hook 호출
+  const [uploadFile, uploading, snapshot, error] = useUploadFile()
+
+  // 컴포넌트에 보여줄 이미지의 base64 string
   const [fileDataURL, setFileDataURL] = useState(null)
 
   // for uploading the image to firebase
-  const [fileToPost, setFile] = useState(null)
+  // firebase storage에 업로드 할 이미지의 bytes
+  const [fileToPost, setFileToPost] = useState(null)
+
+  const uploadToFirebaseStorage = async (storageRef) => {
+    if (fileToPost) {
+      // const filename = fileToPost.name
+      //   .replace(/[~`!#$%^&*+=\-[\]\\';,/{}()|\\":<>?]/g, '')
+      //   .split(' ')
+      //   .join('')
+
+      return await uploadFile(storageRef, fileToPost, {
+        contentType: fileToPost.type,
+      })
+    }
+  }
 
   const sendPost = async (e) => {
     e.preventDefault()
@@ -40,76 +55,34 @@ function InputBox() {
       image: session.user.image,
       timestamp: Timestamp.now(),
     })
-      // 메시지 포스팅 완료 직후 파일을 firestore에 동일한 doc.id로 업로드
-      .then((doc /* 포스팅 완료된 메시지 Document reference */) => {
+      // firestore에 메시지 포스팅 완료 직후 파일을 firestorage에 동일한 doc.id로 업로드
+      .then(async (doc /* 포스팅 완료된 메시지 Document reference */) => {
         if (fileToPost) {
-          // create file metadata including the content type
-          /** @type {any} */
-          const metadata = {
-            contentType: fileToPost.type,
-          }
-
-          // upload file and metadata to the object 'images/mountains.jpg'
           const storageRef = ref(storage, 'posts/' + doc.id)
-          const uploadTask = uploadBytesResumable(
-            storageRef,
-            fileToPost,
-            metadata,
-          )
 
-          uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-              console.log('## snapshot', snapshot)
-
-              // get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-              const progress =
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-
-              console.log(`Upload is ${progress}% done`)
-              switch (snapshot.state) {
-                case 'paused':
-                  console.log('Upload is paused')
-                  break
-                case 'running':
-                  console.log('Upload is running')
-                  break
-              }
-            },
-            (storageError) => {
-              // a full list of error codes is available at
-              // https://firebase.google.com/docs/storage/web/handle-errors
-              // switch (error.code) {
-              //   case 'storage/unauthorized':
-              //     // User doesn't have permission to access the object
-              //     break
-              //   case 'storage/canceled':
-              //     // User canceled the upload
-              //     break
-
-              //   // ...
-
-              //   case 'storage/unknown':
-              //     // Unknown error occurred, inspect error.serverResponse
-              //     break
-              // }
-
-              alert(
-                `storageError: image upload error has been occured. see below. ${JSON.stringify(
-                  storageError,
-                )}`,
-              )
-            },
-            (complete) => {
-              // upload completed successfully, now we can get the download URL
-              getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-                console.log(`File available at: ${downloadUrl}`)
-              })
-            },
-          )
+          return await uploadToFirebaseStorage(storageRef)
         }
       })
+      .then(async ({ metadata, ref: storageRef }) => {
+        console.log('{ metadata, storageRef }:', { metadata, storageRef })
+
+        return await getDownloadURL(storageRef).then(async (downloadUrl) => {
+          console.log('posts/' + metadata.name)
+
+          await setDoc(
+            doc(collection(db, 'posts'), metadata.name),
+            { postImage: downloadUrl },
+            { merge: true },
+          )
+        })
+      })
       .then(() => {
+        console.log('successfully uploaded')
+      })
+      .catch((error) => {
+        // TODO: 데이터 삭제
+      })
+      .finally(() => {
         // clear input(type="file")
         removeImage()
 
@@ -119,10 +92,14 @@ function InputBox() {
   }
 
   /**
-   * file picker를 통해 이미지 혹은 동영상 파일 선택시(onChange) 이벤트를 받아서 firestore에 파일을 업로드.
+   * file picker를 통해 이미지 혹은 동영상 파일 선택시(onChange)
+   * 이벤트를 받아서 firestore에 파일을 업로드.
    */
   const addFileDataURL = (e) => {
     if (!e.target.files) return
+
+    // 파일 선택창 닫은 후 input에 포커싱
+    inputRef.current.focus()
 
     console.log('e.target.files', e.target.files)
 
@@ -131,7 +108,7 @@ function InputBox() {
 
     /* 상태 업로드 리스너 등록 */
     reader.onloadend = (e) => {
-      setFile(file)
+      setFileToPost(file)
       setFileDataURL(e.target.result)
     }
     reader.onerror = (error) => {
@@ -146,7 +123,7 @@ function InputBox() {
    * file picker, input(type="file") 그리고 관련 state 초기화
    */
   const removeImage = () => {
-    setFile(null)
+    setFileToPost(null)
     setFileDataURL(null)
 
     /**
