@@ -11,13 +11,13 @@ const firebaseConfig = {
   appId: '1:200688784054:web:6e68d6c1fde793f08f4c17',
 }
 
-const app = initializeApp(firebaseConfig)
-const db = getFirestore(app)
+const firebaseApp = initializeApp(firebaseConfig)
+const db = getFirestore(firebaseApp)
 
 /**
  * Debugging mode rule
  * => allow read, write: if request.auth == null;
  */
-const storage = getStorage(app)
+const storage = getStorage(firebaseApp)
 
 export { db, storage }
