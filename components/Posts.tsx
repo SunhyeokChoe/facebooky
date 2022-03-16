@@ -13,7 +13,7 @@ const Posts: React.FC = (): JSX.Element => {
 
   return (
     <div>
-      {realtimePosts.docs.map((post) => {
+      {realtimePosts?.docs.map((post) => {
         return (
           <Post
             key={post.id}
