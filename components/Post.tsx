@@ -17,7 +17,16 @@ const Post: React.FC<IProps> = ({
   image,
   postImage,
 }): JSX.Element => {
-  return <div></div>
+  return (
+    <div>
+      <h1>{name}</h1>
+      <h1>{message}</h1>
+      <h1>{email}</h1>
+      {/* <h1>{timestamp}</h1> */}
+      <h1>{image}</h1>
+      <h1>{postImage}</h1>
+    </div>
+  )
 }
 
 export default Post

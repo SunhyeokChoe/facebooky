@@ -1,19 +1,51 @@
-import * as React from 'react'
-import { collection, query, orderBy } from 'firebase/firestore'
-import { getFirestore } from 'firebase/firestore/lite'
-// import { firebaseApp } from '../firebase'
+import React, { useState, useEffect, useMemo } from 'react'
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  doc,
+  getDocs,
+  DocumentData,
+} from 'firebase/firestore/lite'
 import { db } from '../firebase'
 import { useCollection } from '@hooks/firebase/firestore/useCollection'
-import Post from './Post.tsx'
+import Post from './Post'
 
 const Posts: React.FC = (): JSX.Element => {
-  const [realtimePosts] = useCollection(
-    query(collection(db, 'posts'), orderBy('timestamp', 'desc')),
-  )
+  const [posts, setPosts] = useState<any>(null)
+
+  useEffect(() => {
+    ;(async () => {
+      const postsRef = await getDocs(
+        query(collection(db, 'posts'), orderBy('timestamp', 'desc')),
+      )
+
+      setPosts(postsRef)
+    })()
+  }, [])
+
+  useEffect(() => {
+    console.log('posts:', posts)
+  }, [posts])
+
+  // const postsCollection = useMemo(
+  //   () =>
+  //     getDocs(
+  //       query(collection(db, 'posts'), orderBy('timestamp', 'desc')),
+  //     ),
+  //   [],
+  // )
+
+  // const [realtimePosts, loading, error] = useCollection(posts, {
+  //   snapshotListenOptions: { includeMetadataChanges: true },
+  // })
 
   return (
     <div>
-      {realtimePosts?.docs.map((post) => {
+      {posts?.docs.map((post) => {
+        console.log(post.data())
+
         return (
           <Post
             key={post.id}

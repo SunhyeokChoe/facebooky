@@ -20,4 +20,4 @@ const db = getFirestore(firebaseApp)
  */
 const storage = getStorage(firebaseApp)
 
-export { db, storage }
+export { firebaseApp, db, storage }
