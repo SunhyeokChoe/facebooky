@@ -1,13 +1,19 @@
+import React from 'react'
 import Stories from './Stories'
 import InputBox from './InputBox'
-import Posts from './Posts.tsx'
+import Posts from './Posts'
 
-function Feed() {
+interface IProps {
+  posts?: any
+}
+
+const Feed: React.FC<IProps> = (props): JSX.Element => {
+  const { posts } = props
+
   return (
     <div
       className="
-        flex-grow h-screen pb-44 pt-6 mr-4 overflow-y-auto
-        xl:mr-40"
+        flex-grow h-screen pb-44 pt-6 mr-4 overflow-y-auto scrollbar-hide"
     >
       <div
         className="
@@ -19,7 +25,7 @@ function Feed() {
 
         <InputBox />
 
-        <Posts />
+        <Posts posts={posts} />
       </div>
     </div>
   )

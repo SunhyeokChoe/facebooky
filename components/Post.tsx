@@ -2,23 +2,18 @@ import React from 'react'
 import Image from 'next/image'
 import { ThumbUpIcon, ChatAltIcon, ShareIcon } from '@heroicons/react/outline'
 
-type IProps = {
+interface IProps {
   name: string
   message: String
   email: string
   timestamp: any
   image: string
-  postImage: string
+  postImage?: string
 }
 
-const Post: React.FC<IProps> = ({
-  name,
-  message,
-  email,
-  timestamp,
-  image,
-  postImage,
-}): JSX.Element => {
+const Post: React.FC<IProps> = (props): JSX.Element => {
+  const { name, message, email, timestamp, image, postImage } = props
+
   return (
     <div className="flex flex-col">
       <div className="p-5 bg-white mt-5 rounded-t-2xl shadow-sm">
@@ -33,9 +28,14 @@ const Post: React.FC<IProps> = ({
           />
           <div>
             <p className="font-medium">{name}</p>
-            <p className="text-xs text-gray-400">
-              {new Date(timestamp?.toDate()).toLocaleString()}
-            </p>
+
+            {timestamp ? (
+              <p className="text-xs text-gray-400">
+                {new Date(timestamp?.toDate()).toLocaleString()}
+              </p>
+            ) : (
+              <p className="text-xs text-gray-400">loading</p>
+            )}
           </div>
         </div>
 
