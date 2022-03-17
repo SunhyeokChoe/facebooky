@@ -1,5 +1,6 @@
 import Stories from './Stories'
 import InputBox from './InputBox'
+import Posts from './Posts.tsx'
 
 function Feed() {
   return (
@@ -18,7 +19,7 @@ function Feed() {
 
         <InputBox />
 
-        {/* <Posts /> */}
+        <Posts />
       </div>
     </div>
   )
