@@ -1,4 +1,6 @@
 import { getSession } from 'next-auth/react'
+import { getDocs, query, collection, orderBy } from 'firebase/firestore/lite'
+import { db } from '../firebase'
 import Login from '../components/Login'
 import Head from 'next/head'
 import Header from '../components/Header'
@@ -6,7 +8,7 @@ import Sidebar from '../components/Sidebar'
 import Feed from '../components/Feed'
 import Widgets from '../components/Widgets'
 
-export default function Home({ session }) {
+export default function Home({ session, posts }) {
   if (!session) return <Login />
 
   return (
@@ -22,7 +24,7 @@ export default function Home({ session }) {
       <main className="flex">
         <Sidebar />
 
-        <Feed />
+        <Feed posts={posts} />
 
         <Widgets />
       </main>
@@ -33,10 +35,29 @@ export default function Home({ session }) {
 export async function getServerSideProps(context) {
   const session = await getSession(context)
 
+  /**
+   * 페이지 접속시 포스트 데이터를 얻어오는 로직
+   * 목적: 포스트 데이터를 pre-fetch 해 빨리 렌더링 되도록 함
+   */
+  const posts = await getDocs(
+    query(collection(db, 'posts'), orderBy('timestamp', 'desc')),
+  )
+
+  const docs = posts?.docs.map((post) => {
+    return {
+      ...post.data(),
+      id: post.id,
+
+      // timestamp는 object이므로 JSON으로 serialize 할 수 없으므로 null로 변환
+      timestamp: null,
+    }
+  })
+
   return {
+    // 페이지 컴포넌트에 전달될 props
     props: {
-      // 페이지 컴포넌트에 전달될 props
       session,
+      posts: docs,
     },
   }
 }

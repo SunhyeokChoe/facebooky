@@ -12,16 +12,20 @@ import { db } from '../firebase'
 import { useCollection } from '@hooks/firebase/firestore/useCollection'
 import Post from './Post'
 
-const Posts: React.FC = (): JSX.Element => {
+interface IProps {
+  posts?: any
+}
+
+const Posts: React.FC<IProps> = (props): JSX.Element => {
   const [posts, setPosts] = useState<any>(null)
 
   useEffect(() => {
     ;(async () => {
-      const postsRef = await getDocs(
+      const postsSnapshot = await getDocs(
         query(collection(db, 'posts'), orderBy('timestamp', 'desc')),
       )
 
-      setPosts(postsRef)
+      setPosts(postsSnapshot)
     })()
   }, [])
 
@@ -43,21 +47,33 @@ const Posts: React.FC = (): JSX.Element => {
 
   return (
     <div>
-      {posts?.docs.map((post) => {
-        console.log(post.data())
-
-        return (
-          <Post
-            key={post.id}
-            name={post.data().name}
-            message={post.data().message}
-            email={post.data().email}
-            timestamp={post.data().timestamp}
-            image={post.data().image}
-            postImage={post.data().postImage}
-          />
-        )
-      })}
+      {posts
+        ? posts?.docs.map((post) => {
+            return (
+              <Post
+                key={post.id}
+                name={post.data().name}
+                message={post.data().message}
+                email={post.data().email}
+                timestamp={post.data().timestamp}
+                image={post.data().image}
+                postImage={post.data().postImage}
+              />
+            )
+          })
+        : props?.posts?.map((post) => {
+            return (
+              <Post
+                key={post.id}
+                name={post.name}
+                message={post.message}
+                email={post.email}
+                timestamp={post.timestamp}
+                image={post.image}
+                postImage={post.postImage}
+              />
+            )
+          })}
     </div>
   )
 }

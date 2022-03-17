@@ -1,8 +1,15 @@
+import React from 'react'
 import Stories from './Stories'
 import InputBox from './InputBox'
 import Posts from './Posts'
 
-function Feed() {
+interface IProps {
+  posts?: any
+}
+
+const Feed: React.FC<IProps> = (props): JSX.Element => {
+  const { posts } = props
+
   return (
     <div
       className="
@@ -18,7 +25,7 @@ function Feed() {
 
         <InputBox />
 
-        <Posts />
+        <Posts posts={posts} />
       </div>
     </div>
   )

@@ -12,14 +12,7 @@ interface IProps {
 }
 
 const Post: React.FC<IProps> = (props): JSX.Element => {
-  const {
-    name,
-    message,
-    email,
-    timestamp,
-    image,
-    postImage,
-  } = props
+  const { name, message, email, timestamp, image, postImage } = props
 
   return (
     <div className="flex flex-col">
@@ -35,9 +28,14 @@ const Post: React.FC<IProps> = (props): JSX.Element => {
           />
           <div>
             <p className="font-medium">{name}</p>
-            <p className="text-xs text-gray-400">
-              {new Date(timestamp?.toDate()).toLocaleString()}
-            </p>
+
+            {timestamp ? (
+              <p className="text-xs text-gray-400">
+                {new Date(timestamp?.toDate()).toLocaleString()}
+              </p>
+            ) : (
+              <p className="text-xs text-gray-400">loading</p>
+            )}
           </div>
         </div>
 
