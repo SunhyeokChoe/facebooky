@@ -6,8 +6,7 @@ function Feed() {
   return (
     <div
       className="
-        flex-grow h-screen pb-44 pt-6 mr-4 overflow-y-auto
-        xl:mr-40"
+        flex-grow h-screen pb-44 pt-6 mr-4 overflow-y-auto"
     >
       <div
         className="
